@@ -13,19 +13,9 @@ vectorizer.fit_transform(train_set)
 print(vectorizer.vocabulary_)
 
 
-
 from nltk import FreqDist
 
 word_dist = FreqDist()
-
-train_set = causes        # see below
-
-dat = pd.DataFrame(train_set, columns=['text'])
-dat['label'] = pd.DataFrame(np.random.randint(0,9,len(train_set)),index=dat.index)
-dat
-
-
-len(train_set)
 
 for z, s in enumerate(train_set):
     print('{} {}'.format(z, s))
@@ -294,7 +284,7 @@ print_topics(topics = range(nof_topics), feature_names=feature_names,
 
 ### Adapted version!!!!!!!!!!!!!!!!!!!!!!!
 
-def build_freqs(text, ys):
+def build_freqs(text_list, ys):
     """Build frequencies.
     Input:
         text: a list of tweets
@@ -307,7 +297,7 @@ def build_freqs(text, ys):
     # Convert np array to list since zip needs an iterable.
     # The squeeze is necessary or the list ends up with one element.
     # Also note that this is just a NOP if ys is already a list.
-    text = text.tolist()
+    text = text_list.tolist()
     yslist = np.squeeze(ys).tolist()
 
     # Start with an empty dictionary and populate it by looping over all tweets
@@ -326,11 +316,18 @@ def build_freqs(text, ys):
                 freqs[pair] = 1
     return freqs
 
+train_set = causes        # see below
 
-build_freqs(dat.text, dat.label)
+dat = pd.DataFrame(train_set, columns=['text'])
+dat['label'] = pd.DataFrame(np.random.randint(0,9,len(train_set)),index=dat.index)
+dat
 
-text = dat.text.tolist()
-dat.label
+freqs = build_freqs(dat.text, dat.label)
+
+# check the output
+print("type(freqs) = " + str(type(freqs)))
+print("len(freqs) = " + str(len(freqs.keys())))
+
 
 yslist = np.squeeze(dat.label).tolist()
 yslist[0]
@@ -343,8 +340,33 @@ for z, (y, sentence) in enumerate(zip(yslist, text)):
     print(tokens)
 
 
-o = ['2', "öllsm"]
-t = ['vg', 'ljf']
+def extract_features(single_sentence, freqs):
+    '''
+    Input: 
+        single_sentence: a list of words for one sentence
+        freqs: a dictionary corresponding to the frequencies of each tuple (word, label)
+    Output: 
+        x: a feature vector of dimension (1,class +1)
+    '''
+    # process_tweet tokenizes, stems, and removes stopwords
+    word_l = process_tweet(single_sentence)              # change!!!
 
-for i,j in zip(o,t):
-    print(i,j)
+    nof_class = 2
+
+    # 3 elements in the form of a 1 x 3 vector
+    x = np.zeros((1, nof_class + 1))     # + bias term 
+    
+    #bias term is set to 1
+    x[0,0] = 1 
+        
+    # loop through each word in the list of words
+    for word in word_l:
+        
+        # increment the word count for the positive label 1
+        x[0,1] += freqs.get((word, 1.0), 0.)                   # set default dict value 0. if key does not exist
+        
+        # increment the word count for the negative label 0
+        x[0,2] += freqs.get((word, 0.0), 0.)
+        
+    assert(x.shape == (1, nof_class + 1))
+    return x
