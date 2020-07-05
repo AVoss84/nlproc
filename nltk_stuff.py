@@ -304,8 +304,8 @@ def build_freqs(text_list, ys):
     # and over all processed words in each tweet.
     freqs = {}
     for z, (y, sentence) in enumerate(zip(yslist, text)):
-        print(z)
-        print(sentence)
+        print('Token: ', z)
+        #print(sentence)
         tokens = nltk.word_tokenize(sentence)
         for word in tokens:
             #print(word)
