@@ -317,9 +317,22 @@ def build_freqs(text_list, ys):
     return freqs
 
 train_set = causes        # see below
+corpus = train_set
+import re
+for i in range(len(corpus )):
+    print(i)
+    corpus [i] = corpus [i].lower()
+    corpus [i] = re.sub(r'\W',' ',corpus [i])
+    corpus [i] = re.sub(r'\s+',' ',corpus [i])
 
-dat = pd.DataFrame(train_set, columns=['text'])
-dat['label'] = pd.DataFrame(np.random.randint(0,9,len(train_set)),index=dat.index)
+train_x = corpus
+
+# number of sentences / documents in corpus
+print(len(corpus))
+
+
+dat = pd.DataFrame(corpus, columns=['text'])
+dat['label'] = pd.DataFrame(np.random.binomial(1, .2, len(corpus)),index=dat.index)
 dat
 
 freqs = build_freqs(dat.text, dat.label)
@@ -340,7 +353,7 @@ for z, (y, sentence) in enumerate(zip(yslist, text)):
     print(tokens)
 
 
-def extract_features(single_sentence, freqs):
+def extract_features(single_sentence, freqs, nof_class = 2):
     '''
     Input: 
         single_sentence: a list of words for one sentence
@@ -349,9 +362,8 @@ def extract_features(single_sentence, freqs):
         x: a feature vector of dimension (1,class +1)
     '''
     # process_tweet tokenizes, stems, and removes stopwords
-    word_l = process_tweet(single_sentence)              # change!!!
-
-    nof_class = 2
+    #word_l = process_tweet(single_sentence)              # change!!!
+    word_l = single_sentence
 
     # 3 elements in the form of a 1 x 3 vector
     x = np.zeros((1, nof_class + 1))     # + bias term 
@@ -370,3 +382,14 @@ def extract_features(single_sentence, freqs):
         
     assert(x.shape == (1, nof_class + 1))
     return x
+
+extract_features('I am happy to go for a run soon!', freqs, nof_class = 2)
+
+# collect the features 'x' and stack them into a matrix 'X'
+X = np.zeros((len(train_x), 3))
+for i in range(len(train_x)):
+    print(i)
+    X[i, :]= extract_features(train_x[i], freqs)
+
+X.shape
+X[:10,:]    
