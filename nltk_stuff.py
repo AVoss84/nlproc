@@ -1,10 +1,33 @@
 
 # Make vocabulary and frequencies per token:
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
+from nltk.tokenize import WordPunctTokenizer
+from nltk.collocations import BigramCollocationFinder
+from nltk.metrics import BigramAssocMeasures
 
 from sklearn.feature_extraction.text import CountVectorizer
 
 train_set = ("The sky is blue.", "The sun is bright.")
 test_set = ("The sun in the sky is bright.", "We can see the shining sun, the bright sun.")
+
+
+from nltk import word_tokenize 
+from nltk.util import ngrams
+import string, random, time
+
+def char_ngrams(text, n=3):
+    return [text[i:i+n] for i in range(len(text)-n+1)]
+
+# Generate 100 random strings of length 5.
+words = [''.join(random.choice(string.ascii_uppercase) for j in range(5)) for i in range(100)]
+words
+
+start = time.time()
+y = [char_ngrams(w) for w in words]
+print(time.time() - start) 
+
 
 vectorizer = CountVectorizer(stop_words=None)
 
@@ -63,7 +86,7 @@ print(len(corpus))
 
 print(corpus[30])
 
-#okenize the sentences in the corpus and create a dictionary 
+#tokenize the sentences in the corpus and create a dictionary 
 #that contains words and their corresponding frequencies in the corpus
 wordfreq = {}
 for sentence in corpus:
