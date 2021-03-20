@@ -1,1 +1,1 @@
-Natural Language Processing course, Deeplearning.ai
+Natural Language Processing course, deeplearning.ai
